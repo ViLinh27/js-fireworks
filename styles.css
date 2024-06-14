@@ -27,8 +27,20 @@ p {
   font-size: 1.5vw;
   font-family: 'Work Sans', sans-serif;
 }
+.image-container {
+    display: flex;
+    z-index: 1;
+    height: 20%;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  img {
+    z-index: 1;
+    bottom: 5%;
+  }
 
-canvas {
+img, canvas {
   cursor: pointer;
   position: absolute;
 }
