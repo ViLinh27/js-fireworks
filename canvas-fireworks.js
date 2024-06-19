@@ -61,9 +61,9 @@
       // listen to the mousemove event and
     const attachEventListeners = () => {
         canvas.addEventListener('mousemove', (e) => {
-        // set the mouse positions to the correct coordinates
-        positions.mouseX = e.pageX;
-        positions.mouseY = e.pageY;
+            // set the mouse positions to the correct coordinates
+            positions.mouseX = e.pageX;
+            positions.mouseY = e.pageY;
         });
 
          // track mouse click events
@@ -74,6 +74,28 @@
     const loop = () => {
         requestAnimationFrame(loop); // call the loop function indefinitely and redraw the screen every frame
         drawAnchor();
+
+        if (mouseClicked) {
+            fireworks.push(new Firework());
+        }
+          
+        let fireworkIndex = fireworks.length;
+        while (fireworkIndex--) {
+            fireworks[fireworkIndex].draw(fireworkIndex);
+        }
+
+        let fleckIndex = flecks.length;
+        while (fleckIndex--) {
+            flecks[fleckIndex].draw(fleckIndex);
+        }
+        let fleckIndex2 = flecks2.length;
+        while (fleckIndex2--) {
+              flecks2[fleckIndex2].draw(fleckIndex2);
+        }
+        let fleckIndex3 = flecks3.length;
+        while (fleckIndex3--) {
+            flecks3[fleckIndex3].draw(fleckIndex3);
+        }
     };
     
     window.addEventListener('load', () => {
@@ -81,12 +103,13 @@
         loop();
     });
 
-    // canvas-fireworks.js
+    // classes
 
     class Firework {
         constructor() {
         const init = () => {
             // Create the firework object
+            let fireworkLength = 8;
             // current coordinates
             this.x = positions.anchorX;
             this.y = positions.anchorY;
@@ -116,9 +139,7 @@
             while (fireworkLength--) {
                 this.coordinates.push([this.x, this.y]);
             }
-        }
-    
-        init();
+        };
 
         this.animate = (index) => {
             this.coordinates.pop();
@@ -126,10 +147,10 @@
           
             this.speed *= this.friction;
           
-            let velocity_x = Math.cos(this.angle) * this.speed;
+            let velocity_x = Math.cos(this.angle) * this.speed;//updates x and y  as long as it doesn't reach final dest
             let velocity_y = Math.sin(this.angle) * this.speed;
           
-            this.distanceTraveled = getDistance(
+            this.distanceTraveled = getDistance(// has the firework reached its final destination??
               positions.anchorX,
               positions.anchorY,
               this.x + velocity_x,
@@ -138,12 +159,21 @@
           
             if (this.distanceTraveled >= this.distanceToTarget) {
               let i = numberOfFlecks;
-              fireworks.splice(index, 1);
+
+              
+                while (i--) {
+                    flecks.push(new Fleck(this.target_x, this.target_y));
+                    flecks2.push(new Fleck(this.target_x + 50, this.target_y - 50));
+                    flecks3.push(new Fleck(this.target_x - 100, this.target_y - 100));
+                }
+              fireworks.splice(index, 1);//remove fireworks from array of firewroks 
             } else {
               this.x += velocity_x;
               this.y += velocity_y;
             }
+            
           };
+
         this.draw = (index) => {
             context.beginPath();
             context.moveTo(
@@ -157,8 +187,75 @@
           
             this.animate(index);
           };
+    
+        init();
+
+        
         }
         
+    }
+
+
+    class Fleck {
+        constructor(x, y) {
+        const init = () => {
+            this.x = x;
+            this.y = y;	
+            
+            let fleckLength = 7;
+            this.coordinates = [];
+            
+            this.angle = random(0, Math.PI * 2);//makes random angle for better particle look
+            this.speed = random(1, 10);
+                    
+            this.friction = 0.95;//makes sure flecks go down
+            this.gravity = 2;
+                    
+            this.hue = random(0, 360);
+            this.alpha = 1;
+            this.decay = random(0.015, 0.03);//fade out
+                    
+            while (fleckLength--) {
+                this.coordinates.push([this.x, this.y]);
+            }
+        };
+
+        this.animate = (index) => {
+            this.coordinates.pop();
+            this.coordinates.unshift([this.x, this.y]);
+              
+            this.speed *= this.friction;
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed + this.gravity;
+              
+            this.alpha -= this.decay;
+              
+            if (this.alpha <= this.decay) {
+              flecks.splice(index, 1);
+              flecks2.splice(index, 1);
+              flecks3.splice(index, 1);
+            }
+            
+          };
+    
+        this.draw = (index) => {
+            context.beginPath();
+            context.moveTo(
+              this.coordinates[this.coordinates.length - 1][0],
+              this.coordinates[this.coordinates.length - 1][1]
+            );
+            context.lineTo(this.x, this.y);
+              
+            context.strokeStyle = `hsla(${this.hue}, 100%, 50%, ${this.alpha})`;
+            context.stroke();
+              
+            this.animate(index);
+          };
+
+       
+      
+        init();
+        }
     }
   
   })();
