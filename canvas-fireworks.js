@@ -119,7 +119,46 @@
         }
     
         init();
+
+        this.animate = (index) => {
+            this.coordinates.pop();
+            this.coordinates.unshift([this.x, this.y]);
+          
+            this.speed *= this.friction;
+          
+            let velocity_x = Math.cos(this.angle) * this.speed;
+            let velocity_y = Math.sin(this.angle) * this.speed;
+          
+            this.distanceTraveled = getDistance(
+              positions.anchorX,
+              positions.anchorY,
+              this.x + velocity_x,
+              this.y + velocity_y
+            );
+          
+            if (this.distanceTraveled >= this.distanceToTarget) {
+              let i = numberOfFlecks;
+              fireworks.splice(index, 1);
+            } else {
+              this.x += velocity_x;
+              this.y += velocity_y;
+            }
+          };
+        this.draw = (index) => {
+            context.beginPath();
+            context.moveTo(
+              this.coordinates[this.coordinates.length - 1][0],
+              this.coordinates[this.coordinates.length - 1][1]
+            );
+            context.lineTo(this.x, this.y);
+          
+            context.strokeStyle = `hsl(${this.hue}, 100%, 50%)`;
+            context.stroke();
+          
+            this.animate(index);
+          };
         }
+        
     }
   
   })();
